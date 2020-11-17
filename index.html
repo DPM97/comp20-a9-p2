@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <style>
+      .assignment_desc {
+        margin-bottom: 100px;
+      }
+
+      table,
+      th,
+      td {
+        border: thin solid black;
+        width: auto;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="assignment_desc">
+      <p>The API selected: Yahoo finance API - in perticular the news endpoint for stock tickers. In short, in returns all recent news on a certain stock.</p>
+      <p>Website found: https://rapidapi.com/apidojo/api/yahoo-finance1</p>
+      <p>Type: GET, Headers: [api key - rapidapi api key, api host - api host for rapidapi], Query String: [ticker - stock ticker, region - stock region]</p>
+      <p>This API would be useful in a stock analysis application or a stock message board application</p>
+    </div>
+    <label>Market Ticker (ie. AAPL, SHOP, TSLA):</label>
+    <input id="ticker" style="margin-bottom: 20px;"></input>
+    <button id="btn">Get Stock News</button>
+    <table id="table">
+      <thead>
+        <th>Headline</th>
+        <th>Link</th>
+        <th>Date Published</th>
+      </thead>
+      <tbody id="table_body">
+
+      </tbody>
+    </table>
+    <script>
+      const tbody = document.getElementById('table_body')
+      document.getElementById('btn').addEventListener('click', (e) => {
+        tbody.innerHTML = ''
+        e.preventDefault();
+        let ticker = document.getElementById('ticker').value;
+        if (ticker == '') return alert('Please input a valid ticker!');
+        const request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+          if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status == 200) {
+              let resp = JSON.parse(request.responseText)
+              if (!resp.items.result || resp.items.result.length == 0) return alert('No recent news present!');
+              resp.items.result.forEach((e,i) => {
+                let row = tbody.insertRow(i);
+                row.insertCell(0).innerHTML = e.title
+                row.insertCell(1).innerHTML = `<a href='${e.link}'>${e.link}</a>`
+                row.insertCell(2).innerHTML = new Date(e.published_at * 1000)
+              })
+            } else {
+              alert('Request was not successful.')
+            }
+          }
+        }
+        request.open('GET', `https://rapidapi.p.rapidapi.com/stock/get-news?category=${ticker}&region=US`);
+        request.setRequestHeader('x-rapidapi-key', '73e7c6c177msh9565cf7946bd6a4p1648a3jsn020d091b2784')
+        request.setRequestHeader('x-rapidapi-host', 'apidojo-yahoo-finance-v1.p.rapidapi.com')
+        request.send()
+      })
+    </script>
+  </body>
+</html>
